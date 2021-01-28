@@ -3,6 +3,7 @@ from flask_api import status,FlaskAPI
 from Validator import Validator
 
 app = FlaskAPI(__name__)
+#in-memory used
 data = []
 
 
@@ -16,7 +17,7 @@ def Create_device():
             return jsonify({'msg':data_device['message']}),status.HTTP_400_BAD_REQUEST
 
     if request.method == 'GET':
-        return jsonify({'msg':Validator().Display_device(data)}),status.HTTP_200_OK
+        return jsonify({'msg': Validator().Display_device(data)}),status.HTTP_200_OK
 
 
 @app.route('/ajiranet/process/devices/<source>/<strength>', methods=['POST'])

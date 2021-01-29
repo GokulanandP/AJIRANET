@@ -55,40 +55,49 @@ class Validator:
                     for device1 in data:
                         if device1['name'] == i:
                             device1['targets'] = device1['targets'] + [data_recieved['source']]
-
                 device['targets'] = device['targets'] + data_recieved['targets']
                 return_data['status'] = True
                 return_data['message'] = "Successfully connected"
                 return return_data
 
+    # Updating the strength of the device
     def Update_device(self,data,device_to_be_updated,data_recieved):
-        return_data = {"status": True, "message": ""}
-        for device in data:
-            if device['name'] == device_to_be_updated :
-                if device['type'] == 'COMPUTER':
-                    try:
-                        data_recieved['value'] = int(data_recieved['value'])
-                    except:
-                        return_data['status'] = False
-                        return_data['message'] = "value should be an integer"
-                        return return_data
+        if self.update_device_data_validator(data_recieved):
+            for device in data:
+                if device['name'] == device_to_be_updated :
+                    if device['type'] == 'COMPUTER':
+                        if int(data_recieved['value']) > -1:
+                            device['strength'] = data_recieved['value']
+                            self.return_data['status'] = True
+                            self.return_data['message'] = "Successfully defined strength"
+                            return self.return_data
+                    else:
+                        self.return_data['status'] = False
+                        self.return_data['message'] = "Device should be a computer"
+                        return self.return_data
+            self.return_data['status'] = False
+            self.return_data['message'] = "Device Not Found."
+            return self.return_data
+        else:
+            return self.return_data
 
-                    if int(data_recieved['value']) > -1:
-                        device['strength'] = data_recieved['value']
-                        return_data['status'] = True
-                        return_data['message'] = "Successfully defined strength"
-                        return return_data
+    # sub function to check whether the data incoming is valid or not
+    def update_device_data_validator(self,data_recieved):
+        try:
+            if data_recieved['value'] != None:
+                try:
+                    data_recieved['value'] = int(data_recieved['value'])
+                    return True
+                except:
+                    self.return_data['status'] = False
+                    self.return_data['message'] = "value should be an integer"
+                    return False
+        except:
+            self.return_data['status'] = False
+            self.return_data['message'] = "Data missing"
+            return False
 
-                else:
-                    return_data['status'] = False
-                    return_data['message'] = "Device should be a computer"
-                    return return_data
-
-
-        return_data['status'] = False
-        return_data['message'] = "Device Not Found."
-        return return_data
-
+    # function to display the device
     def Display_device(self,data):
         device_names = []
         for devices in data:
@@ -96,7 +105,7 @@ class Validator:
             device_names.append(device_details)
         return device_names
 
-    #adding the device
+    # adding the device
     def Add_device(self,data,data_recieved):
         if self.add_device_data_validator(data_recieved):
             if data_recieved['type'] == 'COMPUTER':
@@ -120,20 +129,20 @@ class Validator:
                 self.return_data['message'] = 'type '+data_recieved['type']+' is not supported'
                 return self.return_data
         else:
-            self.return_data['status'] = False
-            self.return_data['message'] = 'Data missing'
             return self.return_data
         return self.adding_the_device(data,device_detail)
 
-    #sub - function to check data recieved is correct and complete
+    # sub - function to check data recieved is correct and complete
     def add_device_data_validator(self,data_recieved):
         try:
             if data_recieved['type'] != None and data_recieved['name'] != None:
                 return True
         except:
+            self.return_data['status'] = False
+            self.return_data['message'] = 'Data missing'
             return False
 
-    #sub - function to add device into the data
+    # sub - function to add device into the data
     def adding_the_device(self,data,device_detail):
         if len(data) < 1:
             data.insert(0, device_detail)
@@ -166,12 +175,10 @@ class Validator:
             return_data['status'] = False
             return_data['message'] = "Node " + source + " not found"
             return return_data
-
         if destination not in device_names:
             return_data['status'] = False
             return_data['message'] = "Node " + destination + " not found"
             return return_data
-
         if source == destination:
             return_data['status'] = True
             return_data['message'] = 'Route '+ source + ' -> '+destination
@@ -186,7 +193,6 @@ class Validator:
                     destination_flag = True
             if source_flag == True and destination_flag == True:
                 for device in data:
-
                     if device['name'] == source:
                         if destination in device['targets']:
                             return_data['status'] = True
@@ -194,7 +200,6 @@ class Validator:
                             return return_data
                         route_map = [source]
                         self.route = source
-
                         for targets in device['targets']:
                             self.route = self.route + ' -> ' + targets
                             route_map.append(targets)
@@ -210,8 +215,6 @@ class Validator:
                             remove = (4 + len(targets)) * -1
                             self.route = self.route[:remove]
                             route_map.remove(targets)
-
-
                         return_data['status'] = False
                         return_data['message'] = 'Route not found'
                         return return_data

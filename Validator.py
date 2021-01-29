@@ -3,6 +3,7 @@ import re
 class Validator:
     def __init__(self):
         self.route = ''
+        self.return_data = {"status" : True,"message" : ""}
 
     def Connector(self,data, data_recieved):
         return_data = {"status": True, "message": ""}
@@ -94,53 +95,61 @@ class Validator:
             device_details = {'name':devices['name'],'type':devices['type']}
             device_names.append(device_details)
         return device_names
-    
+
+    #adding the device
     def Add_device(self,data,data_recieved):
-        return_data = {"status" : True,"message" : ""}
-        try:
-            if data_recieved['type'] == 'COMPUTER' :
-                if len(data_recieved['name'])>0:
+        if self.add_device_data_validator(data_recieved):
+            if data_recieved['type'] == 'COMPUTER':
+                if len(data_recieved['name']) > 0:
                     device_detail = {'type': data_recieved['type'], 'name': data_recieved['name'],
                                      'targets': [], 'strength': 5}
                 else:
-                    return_data['status'] = False
-                    return_data['message'] = "Invalid Command."
-                    return return_data
+                    self.return_data['status'] = False
+                    self.return_data['message'] = "Invalid Command."
+                    return self.return_data
             elif data_recieved['type'] == 'REPEATER':
                 if len(data_recieved['name'])>0:
                     device_detail = {'type': data_recieved['type'], 'name': data_recieved['name'],
                                      'targets': [], 'strength': 0}
                 else:
-                    return_data['status'] = False
-                    return_data['message'] = 'Invalid Command.'
-                    return return_data
-
+                    self.return_data['status'] = False
+                    self.return_data['message'] = 'Invalid Command.'
+                    return self.return_data
             else:
-                return_data['status'] = False
-                return_data['message'] = 'type '+data_recieved['type']+' is not supported'
-                return return_data
-        except:
-            return_data['status'] = False
-            return_data['message'] = 'Data missing'
-            return return_data
+                self.return_data['status'] = False
+                self.return_data['message'] = 'type '+data_recieved['type']+' is not supported'
+                return self.return_data
+        else:
+            self.return_data['status'] = False
+            self.return_data['message'] = 'Data missing'
+            return self.return_data
+        return self.adding_the_device(data,device_detail)
 
+    #sub - function to check data recieved is correct and complete
+    def add_device_data_validator(self,data_recieved):
+        try:
+            if data_recieved['type'] != None and data_recieved['name'] != None:
+                return True
+        except:
+            return False
+
+    #sub - function to add device into the data
+    def adding_the_device(self,data,device_detail):
         if len(data) < 1:
             data.insert(0, device_detail)
-            return_data['status'] = True
-            return_data['message'] = 'Successfully added '+ data_recieved['name']
-            return return_data
-
+            self.return_data['status'] = True
+            self.return_data['message'] = 'Successfully added '+ device_detail['name']
+            return self.return_data
         else:
-            if any(device['name'] == data_recieved['name'] for device in data):
-                return_data['status'] = False
-                return_data['message'] = 'Device '+data_recieved['name']+' already exist'
-                return return_data
-
+            if any(device['name'] == device_detail['name'] for device in data):
+                self.return_data['status'] = False
+                self.return_data['message'] = 'Device '+device_detail['name']+' already exist'
+                return self.return_data
             else:
                 data.append(device_detail)
-                return_data['status'] = True
-                return_data['message'] = 'Successfully added '+ data_recieved['name']
-                return return_data
+                self.return_data['status'] = True
+                self.return_data['message'] = 'Successfully added '+ device_detail['name']
+                return self.return_data
 
 
     def Check_path(self, data, source, destination):

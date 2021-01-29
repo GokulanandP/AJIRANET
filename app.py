@@ -20,9 +20,9 @@ def Create_device():
         return jsonify({'msg': Validator().Display_device(data)}),status.HTTP_200_OK
 
 
-@app.route('/ajiranet/process/devices/<source>/<strength>', methods=['POST'])
+@app.route('/ajiranet/process/devices/<source>/<strength>', methods=['PUT'])
 def Update_devices(source,strength):
-    if request.method == 'POST':
+    if request.method == 'PUT':
         result = Validator().Update_device(data,source,request.data)
 
         if result['status']:
@@ -40,9 +40,9 @@ def Create_connections():
             return jsonify({'msg':result['message']}), status.HTTP_400_BAD_REQUEST,
 
 
-@app.route('/ajiranet/process/info-routes',methods = ['POST'])
+@app.route('/ajiranet/process/info-routes',methods = ['GET'])
 def Does_path_exist():
-    if request.method == 'POST':
+    if request.method == 'GET':
         result = Validator().Check_path(data, request.args.get('from'), request.args.get('to'))
         print(result)
         if result['status']:
